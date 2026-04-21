@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Investment Dashboard - WealthGrow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af37", // Gold
+                        "secondary-green": "#2e7d32", // Emerald Green
+                        "emerald-dark": "#1b5e20",
+                        "gold-light": "#f1d58c",
+                        "background-light": "#fdfcf8",
+                        "background-dark": "#111811",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "poppins": ["Poppins", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .emerald-gradient {
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+        }
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        .emerald-card-gradient {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(27, 94, 32, 0.1) 100%);
+        }
+        .profile-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        /* Transition Styles */
+        .page-transition {
+            transition: filter 0.5s ease, opacity 0.5s ease;
+        }
+        .blur-out {
+            filter: blur(20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 3D Profile Hover Effect */
+        .profile-3d-container {
+            perspective: 1000px;
+        }
+        .profile-card {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .profile-3d-container:hover .profile-card {
+            transform: rotateX(20deg) rotateY(-20deg) skewX(5deg);
+            box-shadow: -20px 20px 50px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
+        .profile-image-3d {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(0);
+        }
+        .profile-3d-container:hover .profile-image-3d {
+            transform: translateZ(80px) translateY(-20px) scale(1.1);
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+        }
+
+        /* Animated Logout Button Styles */
+        .logout-anim-btn {
+            position: relative;
+            display: block;
+            cursor: pointer;
+            text-align: left;
+            background: #fff;
+            outline: none;
+            border: 1px solid #fee2e2;
+            perspective: 100px;
+            overflow: hidden;
+            transition: 0.3s ease;
+        }
+        /* Sidebar Variant */
+        .logout-anim-btn.sidebar-btn {
+            width: 100%;
+            height: 64px;
+            padding: 0 0 0 24px;
+            border-radius: 12px;
+        }
+        /* Header Variant (Scaled down) */
+        .logout-anim-btn.header-btn {
+            width: 110px;
+            height: 36px;
+            padding: 0 0 0 10px;
+            border-radius: 8px;
+            transform: scale(1);
+        }
+        .dark .logout-anim-btn {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        .logout-anim-btn .btn-text {
+            position: relative;
+            z-index: 10;
+            font-weight: 800;
+            color: #ef4444;
+            transition: 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .logout-anim-btn.sidebar-btn .btn-text { font-size: 16px; }
+        .logout-anim-btn.header-btn .btn-text { font-size: 10px; }
+
+        .logout-anim-btn svg {
+            display: block;
+            position: absolute;
+            fill: #ef4444;
+        }
+        /* Icon positioning for Sidebar */
+        .sidebar-btn .door-frame, .sidebar-btn .door { width: 42px; right: 20px; bottom: 10px; }
+        .sidebar-btn .person { width: 38px; right: 35px; bottom: 13px; }
+        
+        /* Icon positioning for Header */
+        .header-btn .door-frame, .header-btn .door { width: 24px; right: 8px; bottom: 5px; }
+        .header-btn .person { width: 22px; right: 18px; bottom: 7px; }
+
+        .door-frame .flash { opacity: 0; }
+        .logout-anim-btn {
+            --door-transform: rotateY(20deg);
+            --door-duration: 0.2s;
+            --door-delay: 0;
+            --person-transform: none;
+            --person-duration: 0.1s;
+            --body-duration: 0.1s;
+            --arm1-transform: none;
+            --arm2-transform: none;
+            --leg1-transform: none;
+            --leg2-transform: none;
+        }
+        .door {
+            transform-style: preserve-3d;
+            transform: var(--door-transform);
+            transform-origin: 100% 50%;
+            transition: var(--door-duration) ease var(--door-delay);
+        }
+        .door path { fill: #ef4444; stroke: #ef4444; stroke-width: 4; }
+        .person {
+            transform: var(--person-transform);
+            transition: var(--person-duration) cubic-bezier(0.2, 0.1, 0.8, 0.9);
+        }
+        .arm1 { transform: var(--arm1-transform); transform-origin: 52% 45%; transition: var(--body-duration) ease; }
+        .arm2 { transform: var(--arm2-transform); transform-origin: 47% 43%; transition: var(--body-duration) ease; }
+        .leg1 { transform: var(--leg1-transform); transform-origin: 47% 64.5%; transition: var(--body-duration) ease; }
+        .leg2 { transform: var(--leg2-transform); transform-origin: 43% 63%; transition: var(--body-duration) ease; }
+
+        .logout-anim-btn:hover { --door-transform: rotateY(28deg); --person-transform: translateX(2px); }
+        
+        .logout-anim-btn.clicked {
+            --door-transform: rotateY(45deg);
+            --person-transform: translateX(21px);
+            --person-duration: 0.3s;
+            --arm1-transform: translateX(-4px) translateY(-2px) rotate(120deg);
+            --arm2-transform: translateX(4px) rotate(-110deg);
+            --leg1-transform: translateX(-3px) rotate(80deg);
+            --leg2-transform: translateX(4px) rotate(-60deg);
+        }
+        .logout-anim-btn.anim1 { --door-transform: none; --door-delay: 0.25s; }
+        .logout-anim-btn.anim2 { animation: shake 0.2s linear; --person-duration: 1.6s; }
+        @keyframes shake { 0%, 100% { transform: rotate(-1deg); } 50% { transform: rotate(2deg); } }
+        .logout-anim-btn.anim2 .flash { animation: flash 0.3s linear; }
+        @keyframes flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+        .logout-anim-btn.anim2 .person {
+            animation: spin 1.2s infinite linear;
+            bottom: -1080px; transition: transform 1.6s linear, bottom 1.6s cubic-bezier(0.7, 0.1, 1, 1) 0.1s;
+        }
+        @keyframes spin { from { transform: rotate(0deg) scale(1.3); } to { transform: rotate(359deg) scale(1.3); } }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen font-display">
+<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-primary/20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 bg-secondary-green rounded-lg flex items-center justify-center gold-glow">
+<span class="material-icons text-primary">account_balance</span>
+</div>
+<span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">Wealth<span class="text-primary">Grow</span></span>
+</div>
+<nav class="hidden md:flex space-x-8">
+<a class="text-slate-500 hover:text-secondary-green px-1 pt-1 text-sm font-semibold transition-colors" href="javascript:void(0)" onclick="navigateWithTransition('home.html')">Fixed Deposits</a>
+<a class="text-slate-500 hover:text-secondary-green px-1 pt-1 text-sm font-semibold transition-colors" href="javascript:void(0)" onclick="navigateWithTransition('mutual.html')">Mutual Funds</a>
+<a class="text-secondary-green border-b-2 border-primary px-1 pt-1 text-sm font-bold" href="#">My Dashboard</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button onclick="toggleUPIModal()" class="p-2 text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+</button>
+
+<button class="logout-anim-btn header-btn" onclick="startLogoutAnimation(this)">
+    <span class="btn-text">Log Out</span>
+    <svg class="door-frame" viewBox="0 0 100 100"><path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z"/><path class="flash" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z"/></svg>
+    <svg class="door" viewBox="0 0 100 100"><path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z"/><circle cx="66" cy="50" r="3.7"/></svg>
+    <svg class="person" viewBox="0 0 100 100"><circle cx="52.1" cy="32.4" r="6.4"/><path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z"/><g class="arm1"><path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z"/><path d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z"/></g><g class="arm2"><path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z"/><path d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z"/></g><g class="leg1"><path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z"/><path d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z"/></g><g class="leg2"><path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z"/><path d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z"/></g></svg>
+</button>
+
+<div class="relative profile-dropdown">
+<div class="h-9 w-9 rounded-full ring-2 ring-primary/30 p-0.5 cursor-pointer overflow-hidden transition-transform active:scale-95">
+<img id="header-avatar" alt="Profile" class="w-full h-full rounded-full object-cover" src="https://via.placeholder.com/150"/>
+</div>
+<div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden z-50 py-2">
+<div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+<p id="dropdown-name" class="text-xs font-black text-primary uppercase tracking-widest">Loading...</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">person</span> Profile Settings</a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">security</span> Security</a>
+<div class="border-t border-slate-100 dark:border-slate-800 mt-1 pt-1">
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors font-bold" href="javascript:void(0)" onclick="startLogoutAnimation(this)">
+<span class="material-symbols-outlined text-sm">logout</span> Logout</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<section class="emerald-gradient rounded-3xl p-8 md:p-12 mb-10 shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+<div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+<div class="relative profile-3d-container">
+<div class="profile-card w-32 h-32 md:w-40 md:h-40 rounded-2xl border border-white/20 overflow-visible relative flex items-center justify-center">
+<img id="main-profile-img" alt="Profile Large" class="profile-image-3d w-full h-full object-cover rounded-2xl shadow-2xl" src="https://via.placeholder.com/300"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-emerald-dark p-2 rounded-lg shadow-lg z-20">
+<span class="material-symbols-outlined text-sm font-bold">verified</span>
+</div>
+</div>
+<div class="text-center md:text-left flex-grow">
+<h1 id="hero-name" class="text-3xl md:text-4xl font-black text-white mb-2">Loading...</h1>
+<p id="hero-email" class="text-emerald-100/80 text-lg mb-6 flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-base">mail</span> loading...
+</p>
+<div class="flex flex-wrap gap-4 justify-center md:justify-start">
+<div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
+<p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Total Net Worth</p>
+<p id="stat-net-worth" class="text-2xl font-black text-white">₹0</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
+<p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Current Investment</p>
+<p id="stat-investment" class="text-2xl font-black text-white">₹0</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
+<p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Account</p>
+<p id="display-partner-id" class="text-2xl font-black text-white">---</p>
+</div>
+</div>
+<form id="profile-image-form" class="mt-6 flex flex-col sm:flex-row items-center gap-3 justify-center md:justify-start">
+<input id="profile-image-input" type="file" accept="image/*" class="w-full sm:w-auto text-sm bg-white/20 border border-white/30 rounded-xl text-white px-3 py-2" />
+<button type="submit" class="bg-primary hover:bg-gold-light text-emerald-dark font-black py-2 px-4 rounded-xl transition-all">Upload Profile Image</button>
+</form>
+<p id="image-upload-message" class="mt-2 text-xs text-emerald-100/90" style="min-height:1.1em;"></p>
+</div>
+<div class="w-full md:w-64 bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+<p class="text-xs font-black text-emerald-100 uppercase tracking-widest mb-4">Portfolio Diversity</p>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs text-white/70 mb-1">
+<span>Fixed Deposits</span><span>85%</span>
+</div>
+<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs text-white/70 mb-1">
+<span>Liquid Funds</span><span>15%</span>
+</div>
+<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-400 rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+<div class="lg:col-span-2">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-green">account_balance_wallet</span> Current Investments</h2>
+<button class="text-primary font-bold text-sm hover:underline">View All</button>
+</div>
+<div class="space-y-4" id="investment-list">
+<div id="investment-no-data" class="bg-white dark:bg-white/5 rounded-2xl border-2 border-secondary-green/20 p-6 shadow-sm text-center text-slate-500 dark:text-slate-400 font-medium">
+No investment records available. Add a new investment to see details here.
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-black text-slate-900 dark:text-white">Actions</h2>
+</div>
+<div class="bg-white dark:bg-white/5 border-2 border-primary/20 rounded-3xl p-8 sticky top-24">
+<h3 class="font-black text-lg mb-6 text-slate-900 dark:text-white">Quick Tools</h3>
+<div class="grid grid-cols-1 gap-4">
+<button class="w-full bg-primary hover:bg-gold-light text-emerald-dark font-black py-4 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg">
+<span class="material-symbols-outlined">add_circle</span> NEW INVESTMENT</button>
+<button onclick="navigateWithTransition('calculator.html')" class="w-full bg-transparent border-2 border-secondary-green text-secondary-green font-black py-4 rounded-xl hover:bg-secondary-green hover:text-white transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">calculate</span> CALCULATOR</button>
+<button class="w-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-black py-4 rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">download</span> TAX STATEMENTS</button>
+
+<button class="logout-anim-btn sidebar-btn" onclick="startLogoutAnimation(this)">
+    <span class="btn-text">Log Out Session</span>
+    <svg class="door-frame" viewBox="0 0 100 100"><path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z"/><path class="flash" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z"/></svg>
+    <svg class="door" viewBox="0 0 100 100"><path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z"/><circle cx="66" cy="50" r="3.7"/></svg>
+    <svg class="person" viewBox="0 0 100 100"><circle cx="52.1" cy="32.4" r="6.4"/><path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z"/><g class="arm1"><path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z"/><path d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z"/></g><g class="arm2"><path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z"/><path d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z"/></g><g class="leg1"><path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z"/><path d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z"/></g><g class="leg2"><path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z"/><path d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z"/></g></svg>
+</button>
+</div>
+<div class="mt-8 p-6 bg-emerald-card-gradient rounded-2xl border border-secondary-green/10">
+<p class="text-xs font-black text-secondary-green uppercase tracking-widest mb-2">Did you know?</p>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">You can earn an extra 0.25% by re-investing your maturing FD within 24 hours.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<div id="upi-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-80 rounded-3xl p-6 border-2 border-primary/20 shadow-2xl">
+        <h3 class="text-xl font-black mb-6 text-slate-900 dark:text-white text-center">Pay via UPI</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="redirectToUPI('gpay')" class="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <span class="text-xs font-bold">Google Pay</span>
+            </button>
+            <button onclick="redirectToUPI('phonepe')" class="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                </div>
+                <span class="text-xs font-bold">PhonePe</span>
+            </button>
+        </div>
+        <button onclick="toggleUPIModal()" class="w-full mt-6 py-2 text-slate-400 font-bold text-sm">Cancel</button>
+    </div>
+</div>
+
+<footer class="emerald-gradient text-white pt-20 pb-12 relative overflow-hidden mt-20">
+<div class="absolute inset-0 bg-black/10 pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 mb-8">
+<div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center"><span class="material-icons text-emerald-dark">account_balance</span></div>
+<span class="text-xl font-black tracking-tight uppercase">Wealth<span class="text-primary">Grow</span></span>
+</div>
+<p class="text-emerald-100/70 text-sm leading-relaxed">Your trusted partner in building multi-generational wealth through secure, high-yield fixed income solutions.</p>
+</div>
+<div>
+<h5 class="font-black uppercase tracking-widest text-xs text-primary mb-8">Dashboard</h5>
+<ul class="space-y-4 text-sm text-emerald-100/80 font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Investment Summary</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Transaction History</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Tax Certificates</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-black uppercase tracking-widest text-xs text-primary mb-8">Support</h5>
+<ul class="space-y-4 text-sm text-emerald-100/80 font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">24/7 Concierge</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Relationship Manager</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">FAQs</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-black uppercase tracking-widest text-xs text-primary mb-8">Account</h5>
+<ul class="space-y-4 text-sm text-emerald-100/80 font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Profile Security</a></li>
+<li><a onclick="startLogoutAnimation(this)" class="hover:text-primary transition-colors flex items-center gap-2" href="javascript:void(0)"><span class="material-symbols-outlined text-sm">logout</span> Sign Out</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-12 border-t border-white/10 text-center">
+<p class="text-xs text-emerald-100/50 font-bold uppercase tracking-widest">© 2024 WealthGrow Financial Group. All Rights Reserved.</p>
+</div>
+</div>
+</footer>
+
+<!-- Investment Detail Modal -->
+<div id="investment-detail-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border-2 border-primary/20 overflow-hidden">
+        <div class="emerald-gradient p-6 relative">
+            <button onclick="closeInvestmentModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex-shrink-0" style="border:3px solid #d4af37;">
+                    <img id="modal-profile-img" src="https://via.placeholder.com/64" alt="Profile" class="w-full h-full object-cover rounded-full"/>
+                </div>
+                <div>
+                    <p class="text-emerald-100/70 text-xs font-bold uppercase tracking-widest">Investment Details</p>
+                    <h3 id="modal-type" class="text-white font-black text-xl leading-tight">—</h3>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Principal</p>
+                    <p id="modal-amount" class="text-xl font-black text-slate-900 dark:text-white">—</p>
+                </div>
+                <div class="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Rate</p>
+                    <p id="modal-rate" class="text-xl font-black text-primary">—</p>
+                </div>
+                <div class="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Tenure</p>
+                    <p id="modal-tenure" class="text-xl font-black text-slate-900 dark:text-white">—</p>
+                </div>
+                <div class="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Maturity Value</p>
+                    <p id="modal-maturity" class="text-xl font-black text-secondary-green">—</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400 font-bold">Start Date</span>
+                    <span id="modal-start-date" class="text-slate-700 dark:text-slate-200 font-black">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400 font-bold">Maturity Date</span>
+                    <span id="modal-maturity-date" class="text-slate-700 dark:text-slate-200 font-black">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400 font-bold">Payment ID</span>
+                    <span id="modal-payment-id" class="text-slate-500 dark:text-slate-400 font-mono text-xs break-all">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400 font-bold">Status</span>
+                    <span class="text-secondary-green font-black">Active</span>
+                </div>
+            </div>
+        </div>
+        <div class="px-6 pb-6">
+            <button onclick="closeInvestmentModal()" class="w-full bg-secondary-green text-white font-black py-3 rounded-2xl hover:bg-emerald-dark transition-all">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = "/api";
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+
+    let currentUserData = null;
+
+    async function initDashboard() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            const user = await response.json();
+            if (response.ok) {
+                currentUserData = user;
+                updateUI(user);
+            } else {
+                handleLogout();
+            }
+        } catch (err) {
+            console.error("Dashboard Init Error:", err);
+        }
+    }
+
+    function updateUI(user) {
+        document.getElementById("dropdown-name").textContent = user.name || 'Unknown';
+        document.getElementById("hero-name").textContent = user.name || 'Unknown';
+        document.getElementById("hero-email").innerHTML = `<span class="material-symbols-outlined text-base">mail</span> ${user.email || ''}`;
+        document.getElementById("display-partner-id").textContent = user.partnerId || '---';
+
+        const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+        document.getElementById("stat-net-worth").textContent = formatter.format(user.totalNetWorth || 0);
+        document.getElementById("stat-investment").textContent = formatter.format(user.currentInvestment || 0);
+
+        const investmentsContainer = document.getElementById('investment-list');
+        const noDataEl = document.getElementById('investment-no-data');
+
+        if (user.investments && user.investments.length > 0) {
+            if (noDataEl) noDataEl.style.display = 'none';
+            investmentsContainer.innerHTML = user.investments.map((investment, idx) => `
+                <div onclick="showInvestmentDetail(${idx})" class="bg-white dark:bg-white/5 rounded-2xl border-2 border-secondary-green/20 p-6 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer group">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-secondary-green/10 flex items-center justify-center text-secondary-green group-hover:bg-primary/10 transition-colors">
+                                <span class="material-symbols-outlined">payments</span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-slate-900 dark:text-white">${investment.type}</h4>
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">${new Date(investment.date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-8 flex-grow max-w-xl">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Amount</p>
+                                <p class="text-lg font-black text-slate-800 dark:text-slate-200">${formatter.format(investment.amount)}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Returns</p>
+                                <p class="text-lg font-black text-primary">${investment.percentage}% p.a.</p>
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Tenure</p>
+                                <p class="text-lg font-black text-slate-800 dark:text-slate-200">${investment.tenure || 1} Yr${(investment.tenure || 1) > 1 ? 's' : ''}</p>
+                            </div>
+                        </div>
+                        <button class="bg-secondary-green text-white p-2 rounded-lg hover:bg-emerald-dark transition-colors flex-shrink-0">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            if (noDataEl) noDataEl.style.display = '';
+            investmentsContainer.innerHTML = '';
+        }
+
+        // Update profile images (use generated avatar as fallback)
+        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || 'User') + "&background=2e7d32&color=fff&size=200";
+        const imgSrc = user.profileImage || defaultAvatar;
+        document.getElementById("header-avatar").src = imgSrc;
+        document.getElementById("main-profile-img").src = imgSrc;
+        document.getElementById("modal-profile-img").src = imgSrc;
+    }
+
+    // ========================
+    // INVESTMENT DETAIL MODAL
+    // ========================
+    function showInvestmentDetail(idx) {
+        if (!currentUserData || !currentUserData.investments) return;
+        const inv = currentUserData.investments[idx];
+        if (!inv) return;
+
+        const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+        const startDate = new Date(inv.date);
+        const tenure = inv.tenure || 1;
+        const maturityDate = new Date(startDate);
+        maturityDate.setFullYear(maturityDate.getFullYear() + tenure);
+
+        // Quarterly compound interest
+        const n = 4;
+        const r = inv.percentage / 100;
+        const maturity = Math.round(inv.amount * Math.pow((1 + r / n), n * tenure));
+
+        document.getElementById('modal-type').textContent = inv.type;
+        document.getElementById('modal-amount').textContent = formatter.format(inv.amount);
+        document.getElementById('modal-rate').textContent = inv.percentage + '% p.a.';
+        document.getElementById('modal-tenure').textContent = tenure + ' Year' + (tenure > 1 ? 's' : '');
+        document.getElementById('modal-maturity').textContent = formatter.format(maturity);
+        document.getElementById('modal-start-date').textContent = startDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('modal-maturity-date').textContent = maturityDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('modal-payment-id').textContent = inv.paymentId || 'N/A';
+
+        // Sync profile image to modal
+        const mainImg = document.getElementById('main-profile-img');
+        if (mainImg) document.getElementById('modal-profile-img').src = mainImg.src;
+
+        document.getElementById('investment-detail-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeInvestmentModal() {
+        document.getElementById('investment-detail-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('investment-detail-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeInvestmentModal();
+            });
+        }
+    });
+
+    // ========================
+    // NAVIGATION
+    // ========================
+    function navigateWithTransition(url) {
+        document.body.classList.add('page-transition');
+        setTimeout(() => { document.body.classList.add('blur-out'); }, 10);
+        setTimeout(() => { window.location.href = url; }, 500);
+    }
+
+    // ========================
+    // UPI MODAL
+    // ========================
+    function toggleUPIModal() {
+        const modal = document.getElementById('upi-modal');
+        modal.classList.toggle('hidden');
+    }
+
+    function redirectToUPI(app) {
+        window.location.href = "https://pay.google.com/intl/en_in/about/";
+        toggleUPIModal();
+    }
+
+    // ========================
+    // LOGOUT
+    // ========================
+    function startLogoutAnimation(element) {
+        element.classList.add("clicked");
+        setTimeout(() => { element.classList.add("anim1"); }, 300);
+        setTimeout(() => { element.classList.add("anim2"); }, 900);
+        setTimeout(() => {
+            element.querySelector(".btn-text").textContent = "Logged Out";
+            handleLogout();
+        }, 2500);
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigateWithTransition('login.html');
+    }
+
+    // ========================
+    // PROFILE IMAGE UPLOAD
+    // ========================
+    async function uploadProfileImage(event) {
+        event.preventDefault();
+        const fileInput = document.getElementById('profile-image-input');
+        const message = document.getElementById('image-upload-message');
+        const submitBtn = document.querySelector('#profile-image-form button[type="submit"]');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            message.textContent = 'Please select an image file first.';
+            message.style.color = '#f87171';
+            return;
+        }
+
+        const file = fileInput.files[0];
+        if (!file.type.startsWith('image/')) {
+            message.textContent = 'Please select a valid image (JPG, PNG, etc.)';
+            message.style.color = '#f87171';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            message.textContent = 'Image must be under 5MB.';
+            message.style.color = '#f87171';
+            return;
+        }
+
+        message.textContent = 'Uploading...';
+        message.style.color = '#d4af37';
+        if (submitBtn) submitBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('profileImage', file);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                message.textContent = 'Profile image updated!';
+                message.style.color = '#4ade80';
+                if (data.profileImage) {
+                    document.getElementById("header-avatar").src = data.profileImage;
+                    document.getElementById("main-profile-img").src = data.profileImage;
+                    document.getElementById("modal-profile-img").src = data.profileImage;
+                    if (currentUserData) currentUserData.profileImage = data.profileImage;
+                }
+                fileInput.value = '';
+            } else {
+                message.textContent = (data.message || 'Upload failed. Please try again.');
+                message.style.color = '#f87171';
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+            message.textContent = 'Network error. Please check your connection.';
+            message.style.color = '#f87171';
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    }
+
+    document.getElementById('profile-image-form').addEventListener('submit', uploadProfileImage);
+    window.onload = initDashboard;
+</script>
+</body></html>

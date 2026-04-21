@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthGrow - Regular Fixed Deposit</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary-gold: #d4af37; --emerald-green: #2e7d32; }
+        body { font-family: 'Manrope', sans-serif; background-color: #fdfcf8; }
+        .poppins { font-family: 'Poppins', sans-serif; }
+        .emerald-gradient { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); }
+        
+        /* Card Visuals */
+        .card-wrapper { perspective: 1000px; margin-bottom: -120px; position: relative; z-index: 20; }
+        .card-inner {
+            width: 100%; max-width: 400px; height: 230px;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d; position: relative; margin: 0 auto;
+        }
+        .card-front {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 24px; padding: 25px; color: white;
+            background: linear-gradient(135deg, #323941, #061018);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .bill-animate { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen">
+
+    <div id="introOverlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="bg-white max-w-lg w-full rounded-3xl p-8 shadow-2xl">
+            <div class="w-16 h-16 bg-[#2e7d32]/10 rounded-2xl flex items-center justify-center mb-6">
+                <span class="material-icons text-[#2e7d32] text-4xl">account_balance_wallet</span>
+            </div>
+            <h2 class="text-3xl font-extrabold mb-4 text-slate-900">Regular Fixed Deposit</h2>
+            <p class="text-slate-600 leading-relaxed mb-8">
+                Secure your savings with a <b>Regular FD</b>. Unlike Tax-Saving FDs, you enjoy <b>flexible tenures</b> and the option for premature withdrawal (subject to bank terms).
+                <br><br>
+                Perfect for short-to-medium term goals with guaranteed returns.
+            </p>
+            <button onclick="closeIntro()" class="w-full bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">
+                START INVESTING
+            </button>
+        </div>
+    </div>
+
+    <div id="billOverlay" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-[#1b5e20]/95 backdrop-blur-lg p-4">
+        <div class="bg-white max-w-md w-full rounded-[40px] overflow-hidden shadow-2xl bill-animate">
+            <div class="bg-slate-50 p-8 text-center border-b border-dashed border-slate-200">
+                <div class="w-20 h-20 bg-[#2e7d32] rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+                    <span class="material-icons text-4xl">check_circle</span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900">Investment Active</h2>
+                <p class="text-slate-500 text-sm mt-1">Transaction Successful</p>
+            </div>
+            <div class="p-8 space-y-4">
+                <div class="flex justify-between text-sm"><span class="text-slate-400">Principal</span><span class="font-bold" id="billPrincipal">₹0</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-400">FD Type</span><span class="font-bold">Regular Deposit</span></div>
+                <div class="flex justify-between items-end pt-4 border-t">
+                    <span class="text-slate-400 text-xs uppercase font-black">Maturity Value</span>
+                    <span class="text-3xl font-black text-[#2e7d32]" id="billTotal">₹0</span>
+                </div>
+                <div class="pt-6">
+                    <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest mb-4 italic">Redirecting in <span id="timer">5</span>s</p>
+                    <button onclick="window.location.href='home.html'" class="w-full bg-[#2e7d32] text-white font-bold py-4 rounded-xl shadow-lg">GO TO DASHBOARD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 p-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-[#2e7d32] rounded flex items-center justify-center"><span class="material-icons text-[#d4af37]">account_balance</span></div>
+                <span class="text-xl font-extrabold tracking-tighter uppercase">Wealth<span class="text-[#d4af37]">Grow</span></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <div id="calcSection" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100">
+                    <h2 class="text-2xl font-black mb-8 flex items-center gap-3">
+                        <span class="material-icons text-[#2e7d32]">payments</span>
+                        Regular Investment
+                    </h2>
+                    
+                    <div class="space-y-10">
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Amount to Invest</label>
+                            <div class="relative">
+                                <span class="absolute left-6 top-1/2 -translate-y-1/2 text-3xl font-bold text-[#d4af37]">₹</span>
+                                <input id="amount" type="number" value="100000" oninput="calculate()" class="w-full pl-14 pr-6 py-6 bg-slate-50 border-none rounded-2xl text-4xl font-black text-[#2e7d32] focus:ring-4 focus:ring-[#2e7d32]/10">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <button onclick="setTenure(this, 1, 6.5)" class="tenure-btn p-6 rounded-2xl border-2 border-[#d4af37] bg-[#d4af37]/5 text-center transition-all">
+                                <div class="text-xl font-bold">1 Year</div><div class="text-[#d4af37] text-xs font-black">6.5% P.A.</div>
+                            </button>
+                            <button onclick="setTenure(this, 3, 7.2)" class="tenure-btn p-6 rounded-2xl border-2 border-slate-100 text-center transition-all">
+                                <div class="text-xl font-bold">3 Years</div><div class="text-slate-400 text-xs font-black">7.2% P.A.</div>
+                            </button>
+                            <button onclick="setTenure(this, 5, 7.8)" class="tenure-btn p-6 rounded-2xl border-2 border-slate-100 text-center transition-all">
+                                <div class="text-xl font-bold">5 Years</div><div class="text-slate-400 text-xs font-black">7.8% P.A.</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4">
+                <div class="emerald-gradient rounded-[32px] p-8 text-white shadow-2xl sticky top-24">
+                    <h3 class="text-xs font-black uppercase text-[#d4af37] mb-8 tracking-widest">Maturity Forecast</h3>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center"><span class="opacity-70">Estimated Interest</span><span class="font-bold text-xl text-[#d4af37]">₹<span id="interest">0</span></span></div>
+                        <div class="pt-6 border-t border-white/10">
+                            <span class="text-xs uppercase block mb-2 opacity-70">Total Maturity</span>
+                            <span class="text-4xl font-black">₹<span id="total">0</span></span>
+                        </div>
+                    </div>
+                    <button onclick="goToPayment()" class="w-full mt-10 bg-[#d4af37] hover:bg-yellow-500 text-[#1b5e20] font-black py-5 rounded-2xl transition-all shadow-xl active:scale-95 italic">
+                        PROCEED TO REVIEW
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="paySection" class="hidden max-w-xl mx-auto">
+            <div class="card-wrapper">
+                <div class="card-inner">
+                    <div class="card-front poppins">
+                        <div class="flex justify-between items-start mb-10">
+                            <span class="font-bold text-xs tracking-widest opacity-80 uppercase italic">WealthGrow Premium</span>
+                            <span class="material-icons text-[#d4af37]">verified</span>
+                        </div>
+                        <div class="text-2xl font-mono tracking-[4px] mb-8">**** **** **** ****</div>
+                        <div class="flex justify-between items-end uppercase text-[9px] tracking-widest opacity-80">
+                            <div><div class="mb-1">Member</div><div class="text-sm font-medium">VERIFIED INVESTOR</div></div>
+                            <div class="text-right"><div>Tier</div><div class="text-sm font-medium">REGULAR FD</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-[40px] p-8 pt-40 shadow-xl border border-slate-100 text-center space-y-6">
+                <h3 class="font-black text-xl">Confirm Investment</h3>
+                <p class="text-slate-500 text-sm">Amount to be debited:<br><span class="text-2xl font-black text-slate-900">₹<span id="payAmtText">0</span></span></p>
+                
+                <button onclick="handleRazorpay()" class="w-full bg-[#2e7d32] text-white font-black py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                    <span class="material-icons">security</span> PAY SECURELY
+                </button>
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Secure 256-bit Encrypted Transaction</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = "/api";
+        let currentRate = 6.5;
+        let currentYears = 1;
+
+        function closeIntro() {
+            document.getElementById('introOverlay').style.display = 'none';
+        }
+
+        function setTenure(btn, yrs, rate) {
+            currentYears = yrs;
+            currentRate = rate;
+            document.querySelectorAll('.tenure-btn').forEach(b => {
+                b.classList.remove('border-[#d4af37]', 'bg-[#d4af37]/5');
+                b.classList.add('border-slate-100');
+                b.querySelector('div:last-child').className = "text-slate-400 text-xs font-black";
+            });
+            btn.classList.add('border-[#d4af37]', 'bg-[#d4af37]/5');
+            btn.querySelector('div:last-child').className = "text-[#d4af37] text-xs font-black";
+            calculate();
+        }
+
+        function calculate() {
+            const p = parseFloat(document.getElementById("amount").value) || 0;
+            const n = 4; // Quarterly Compounding
+            const r = currentRate / 100;
+            
+            const totalValue = Math.round(p * Math.pow((1 + r/n), (n * currentYears)));
+            const interestValue = totalValue - p;
+
+            document.getElementById("interest").innerText = interestValue.toLocaleString('en-IN');
+            document.getElementById("total").innerText = totalValue.toLocaleString('en-IN');
+            document.getElementById("payAmtText").innerText = p.toLocaleString('en-IN'); // Pay principal, not maturity
+
+            // Sync Bill
+            document.getElementById("billPrincipal").innerText = "₹" + p.toLocaleString('en-IN');
+            document.getElementById("billTotal").innerText = "₹" + totalValue.toLocaleString('en-IN');
+        }
+
+        function goToPayment() {
+            const amt = parseFloat(document.getElementById("amount").value);
+            if(amt < 5000) return alert("Minimum Regular FD is ₹5,000");
+
+            document.getElementById('calcSection').classList.add('hidden');
+            document.getElementById('paySection').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function handleRazorpay() {
+            const p = parseFloat(document.getElementById("amount").value);
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("Please login first");
+                return window.location.href = 'login.html';
+            }
+
+            if (!p || p < 5000) {
+                alert("Minimum Regular FD is ₹5,000");
+                return;
+            }
+
+            const payBtn = document.querySelector('[onclick="handleRazorpay()"]');
+            if (payBtn) { payBtn.disabled = true; payBtn.textContent = "Processing..."; }
+
+            const options = {
+                "key": "rzp_test_Sf3QxA09Pi4b30",
+                "amount": p * 100,
+                "currency": "INR",
+                "name": "WealthGrow",
+                "description": "Regular Fixed Deposit Investment",
+                "handler": async function (response) {
+                    const paymentId = response.razorpay_payment_id;
+                    const saved = await saveInvestment(p, paymentId);
+                    if (saved) {
+                        showSuccess();
+                    } else {
+                        alert("⚠️ Payment received but saving failed.\nPayment ID: " + paymentId + "\nPlease contact support with this ID.");
+                        if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Pay ₹" + p.toLocaleString('en-IN'); }
+                    }
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Pay Now"; }
+                    }
+                },
+                "theme": { "color": "#2e7d32" }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        async function saveInvestment(p, payId) {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            try {
+                const res = await fetch(`${API_BASE_URL}/user/investment`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        type: "Regular Fixed Deposit",
+                        amount: p,
+                        percentage: currentRate,
+                        tenure: currentYears,
+                        paymentId: payId || null
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    console.error("Save investment error:", err);
+                }
+                return res.ok;
+            } catch (err) {
+                console.error("Network error saving investment:", err);
+                return false;
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('billOverlay').classList.remove('hidden');
+            let time = 5;
+            const timerEl = document.getElementById('timer');
+            if (timerEl) timerEl.innerText = time;
+            const itv = setInterval(() => {
+                time--;
+                if (timerEl) timerEl.innerText = time;
+                if (time <= 0) {
+                    clearInterval(itv);
+                    window.location.href = 'profile.html';
+                }
+            }, 1000);
+        }
+
+        window.onload = calculate;
+    </script>
+</body>
+</html>

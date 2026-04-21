@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthGrow - Senior Citizen FD</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary-gold: #d4af37; --emerald-green: #2e7d32; }
+        body { font-family: 'Manrope', sans-serif; background-color: #fdfcf8; }
+        .poppins { font-family: 'Poppins', sans-serif; }
+        .emerald-gradient { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); }
+        
+        /* Card Visuals */
+        .card-wrapper { perspective: 1000px; margin-bottom: -120px; position: relative; z-index: 20; }
+        .card-inner {
+            width: 100%; max-width: 400px; height: 230px;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d; position: relative; margin: 0 auto;
+        }
+        .card-front, .card-back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 24px; padding: 25px; color: white;
+            background: linear-gradient(135deg, #323941, #061018);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .card-back { transform: rotateY(180deg); padding: 0; }
+        .card-number-display { display: flex; font-size: 20px; height: 32px; overflow: hidden; letter-spacing: 2px; }
+        
+        .bill-animate { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen">
+
+    <div id="billOverlay" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-[#1b5e20]/95 backdrop-blur-lg p-4">
+        <div class="bg-white max-w-md w-full rounded-[40px] overflow-hidden shadow-2xl bill-animate">
+            <div class="bg-slate-50 p-8 text-center border-b border-dashed border-slate-200">
+                <div class="w-20 h-20 bg-[#2e7d32] rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+                    <span class="material-icons text-4xl">check_circle</span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900">Success</h2>
+                <p class="text-slate-500 text-sm mt-1">Senior Citizen FD Activated</p>
+            </div>
+            <div class="p-8 space-y-4">
+                <div class="flex justify-between text-sm"><span class="text-slate-400">Principal</span><span class="font-bold" id="billPrincipal">₹0</span></div>
+                <div class="flex justify-between items-end pt-4 border-t">
+                    <span class="text-slate-400 text-xs uppercase font-black">Maturity Amount</span>
+                    <span class="text-3xl font-black text-[#2e7d32]" id="billTotal">₹0</span>
+                </div>
+                <div class="pt-6">
+                    <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest mb-4">Investment recorded in portfolio</p>
+                    <button onclick="window.location.href='home.html'" class="w-full bg-[#2e7d32] text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">GO TO DASHBOARD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 p-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-[#2e7d32] rounded flex items-center justify-center"><span class="material-icons text-[#d4af37]">account_balance</span></div>
+                <span class="text-xl font-extrabold tracking-tighter uppercase">Wealth<span class="text-[#d4af37]">Grow</span></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <div class="max-w-2xl mx-auto mb-12">
+            <div class="flex items-center justify-between relative">
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2"></div>
+                <div id="progressBar" class="absolute top-1/2 left-0 w-1/2 h-1 bg-[#2e7d32] -translate-y-1/2 transition-all duration-700"></div>
+                <div class="z-10 w-10 h-10 rounded-full bg-[#2e7d32] text-white flex items-center justify-center font-bold shadow-lg">1</div>
+                <div class="z-10 w-10 h-10 rounded-full bg-[#2e7d32] text-white flex items-center justify-center font-bold shadow-lg">2</div>
+                <div id="step3" class="z-10 w-10 h-10 rounded-full bg-white border-4 border-slate-100 text-slate-400 flex items-center justify-center font-bold">3</div>
+            </div>
+        </div>
+
+        <div id="calcSection" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-icons text-[#2e7d32]">stars</span>
+                        <h2 class="text-2xl font-black">Senior Citizen Privilege</h2>
+                    </div>
+                    
+                    <div class="space-y-10">
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Investment Amount</label>
+                            <div class="relative">
+                                <span class="absolute left-6 top-1/2 -translate-y-1/2 text-3xl font-bold text-[#d4af37]">₹</span>
+                                <input id="amount" type="number" value="100000" oninput="calculate()" class="w-full pl-14 pr-6 py-6 bg-slate-50 border-none rounded-2xl text-4xl font-black text-[#2e7d32] focus:ring-4 focus:ring-[#2e7d32]/10">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Select Tenure</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button onclick="setTenure(1, 7.0, this)" class="tenure-btn p-6 rounded-2xl border-2 border-[#d4af37] bg-[#d4af37]/5 transition-all text-left group">
+                                    <div class="text-sm font-bold text-slate-400 group-hover:text-[#2e7d32]">1 Year</div>
+                                    <div class="text-2xl font-black">7.0% <span class="text-xs">p.a.</span></div>
+                                </button>
+                                <button onclick="setTenure(3, 7.7, this)" class="tenure-btn p-6 rounded-2xl border-2 border-slate-100 hover:border-[#d4af37]/30 transition-all text-left group">
+                                    <div class="text-sm font-bold text-slate-400 group-hover:text-[#2e7d32]">3 Years</div>
+                                    <div class="text-2xl font-black">7.7% <span class="text-xs">p.a.</span></div>
+                                </button>
+                                <button onclick="setTenure(5, 8.3, this)" class="tenure-btn p-6 rounded-2xl border-2 border-slate-100 hover:border-[#d4af37]/30 transition-all text-left group">
+                                    <div class="text-sm font-bold text-slate-400 group-hover:text-[#2e7d32]">5 Years</div>
+                                    <div class="text-2xl font-black">8.3% <span class="text-xs">p.a.</span></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4">
+                <div class="emerald-gradient rounded-[32px] p-8 text-white shadow-2xl sticky top-24">
+                    <h3 class="text-xs font-black uppercase text-[#d4af37] mb-8 tracking-widest">Growth Forecast</h3>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center"><span class="opacity-70">Estimated Interest</span><span class="font-bold text-xl text-[#d4af37]">₹<span id="interest">0</span></span></div>
+                        <div class="pt-6 border-t border-white/10">
+                            <span class="text-xs uppercase block mb-2 opacity-70">Maturity Value</span>
+                            <span class="text-4xl font-black">₹<span id="total">0</span></span>
+                        </div>
+                    </div>
+                    <button onclick="goToPayment()" class="w-full mt-10 bg-[#d4af37] hover:bg-yellow-500 text-[#1b5e20] font-black py-5 rounded-2xl transition-all shadow-xl active:scale-95">
+                        PROCEED TO SECURE PAY
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="paySection" class="hidden max-w-xl mx-auto">
+            <div class="card-wrapper">
+                <div id="cardVisual" class="card-inner">
+                    <div class="card-front poppins">
+                        <div class="flex justify-between items-start mb-10">
+                            <span class="font-bold text-xs tracking-widest opacity-80 uppercase">Privilege Member</span>
+                            <span class="material-icons text-[#d4af37]">contactless</span>
+                        </div>
+                        <div class="card-number-display mb-8 text-2xl font-mono tracking-[4px]">
+                            **** **** **** ****
+                        </div>
+                        <div class="flex justify-between items-end uppercase text-[9px] tracking-widest opacity-80">
+                            <div><div class="mb-1">Investor</div><div class="text-sm font-medium">VERIFIED USER</div></div>
+                            <div class="text-right"><div>Status</div><div class="text-sm font-medium">SECURE</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-[40px] p-8 pt-40 shadow-xl border border-slate-100 space-y-6 text-center">
+                <h3 class="font-black text-xl">Select Payment Method</h3>
+                <p class="text-slate-500 text-sm">Choose your preferred way to complete the investment of <br><span class="font-bold text-slate-900">₹<span id="payAmtText">0</span></span></p>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="handleRazorpay('upi')" class="bg-slate-900 hover:bg-black text-white p-5 rounded-2xl flex flex-col items-center gap-2 transition-all group">
+                        <span class="material-icons group-hover:scale-110 transition-transform">account_balance_wallet</span>
+                        <span class="font-bold text-xs">UPI / QR</span>
+                    </button>
+                    <button onclick="handleRazorpay('card')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 p-5 rounded-2xl flex flex-col items-center gap-2 transition-all group">
+                        <span class="material-icons group-hover:scale-110 transition-transform">credit_card</span>
+                        <span class="font-bold text-xs">Debit/Credit Card</span>
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    <span class="material-icons text-xs">lock</span>
+                    PCI-DSS Compliant Gateway
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let years = 1; 
+        let rate = 7.0;
+
+        // Load calculator on start
+        window.onload = calculate;
+
+        function calculate() {
+            const p = parseFloat(document.getElementById("amount").value) || 0;
+            const interestValue = Math.round((p * rate * years) / 100);
+            const totalValue = p + interestValue;
+
+            document.getElementById("interest").innerText = interestValue.toLocaleString('en-IN');
+            const formattedTotal = totalValue.toLocaleString('en-IN');
+            document.getElementById("total").innerText = formattedTotal;
+            document.getElementById("payAmtText").innerText = formattedTotal;
+
+            // Sync hidden bill data
+            document.getElementById("billPrincipal").innerText = "₹" + p.toLocaleString('en-IN');
+            document.getElementById("billTotal").innerText = "₹" + formattedTotal;
+        }
+
+        function setTenure(y, r, btn) {
+            years = y; rate = r;
+            document.querySelectorAll('.tenure-btn').forEach(b => {
+                b.classList.replace('border-[#d4af37]', 'border-slate-100');
+                b.classList.remove('bg-[#d4af37]/5');
+            });
+            btn.classList.replace('border-slate-100', 'border-[#d4af37]');
+            btn.classList.add('bg-[#d4af37]/5');
+            calculate();
+        }
+
+        function goToPayment() {
+            const amt = parseFloat(document.getElementById("amount").value);
+            if(amt < 5000) return alert("Minimum Senior Citizen FD starts at ₹5,000");
+
+            document.getElementById('calcSection').classList.add('hidden');
+            document.getElementById('paySection').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('step3').classList.add('bg-[#2e7d32]', 'text-white');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= PAYMENTS & BACKEND =================
+
+        const API_BASE_URL = "/api";
+
+        function handleRazorpay(methodType) {
+            const principal = parseFloat(document.getElementById("amount").value);
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("Please login first");
+                return window.location.href = 'login.html';
+            }
+
+            if (!principal || principal <= 0) {
+                alert("Please enter a valid investment amount");
+                return;
+            }
+
+            const options = {
+                "key": "rzp_test_Sf3QxA09Pi4b30",
+                "amount": principal * 100,
+                "currency": "INR",
+                "name": "WealthGrow",
+                "description": "Senior Citizen FD - " + years + " Year(s)",
+                "handler": async function (response) {
+                    const paymentId = response.razorpay_payment_id;
+                    const success = await saveInvestment(principal, paymentId);
+                    if (success) {
+                        const overlay = document.getElementById('billOverlay');
+                        if (overlay) {
+                            overlay.classList.remove('hidden');
+                            let time = 5;
+                            const timerEl = document.getElementById('timer');
+                            if (timerEl) timerEl.innerText = time;
+                            const itv = setInterval(() => {
+                                time--;
+                                if (timerEl) timerEl.innerText = time;
+                                if (time <= 0) { clearInterval(itv); window.location.href = 'profile.html'; }
+                            }, 1000);
+                        } else {
+                            alert("✅ Investment saved successfully!");
+                            window.location.href = 'profile.html';
+                        }
+                    } else {
+                        alert("⚠️ Payment received but saving failed.\nPayment ID: " + paymentId + "\nPlease contact support with this ID.");
+                    }
+                },
+                "modal": {
+                    "ondismiss": function() { console.log("Payment modal closed"); }
+                },
+                "prefill": { "method": methodType },
+                "theme": { "color": "#2e7d32" }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        async function saveInvestment(p, payId) {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Login required to save investment.");
+                window.location.href = "login.html";
+                return false;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/user/investment`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        type: "Senior Citizen FD",
+                        amount: p,
+                        percentage: rate,
+                        tenure: years,
+                        paymentId: payId || null
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    console.error("Save investment error:", err);
+                }
+                return res.ok;
+            } catch (err) {
+                console.error("Network error saving investment:", err);
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

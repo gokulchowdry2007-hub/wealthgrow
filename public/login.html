@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Vault | Secure Financial Access</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+        :root {
+            --gold: #d4af37;
+            --emerald-dark: #081c15;
+            --emerald-light: #1b4332;
+            --deep-black: #0a0f0d;
+            --text-white: #ffffff;
+            --transition-speed: 1.2s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body { 
+            background: #000; 
+            height: 100vh; 
+            width: 100vw; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+            color: white;
+        }
+
+        /* --- Background Layers --- */
+        .fixed-bg-container { position: fixed; inset: 0; z-index: 0; }
+        .bg-image-layer { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 0.4; 
+            transition: transform 2s ease;
+        }
+        .bg-gradient-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: radial-gradient(circle at center, transparent 0%, #000 90%); 
+        }
+        .grainy-noise { 
+            position: fixed; 
+            inset: 0; 
+            pointer-events: none; 
+            opacity: 0.05; 
+            background: url('https://grainy-gradients.vercel.app/noise.svg'); 
+            z-index: 1; 
+        }
+
+        /* --- Main Wrapper --- */
+        .auth-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            z-index: 2; 
+            transition: filter 0.8s ease;
+        }
+
+        /* --- The Sliding Skewed Shape --- */
+        .background-shape { 
+            position: absolute; 
+            right: -10%; 
+            top: -10%; 
+            height: 120%; 
+            width: 60%; 
+            background: linear-gradient(135deg, var(--emerald-light) 0%, var(--emerald-dark) 100%); 
+            transform: skewX(-15deg); 
+            transition: transform var(--transition-speed) cubic-bezier(0.7, 0, 0.3, 1); 
+            z-index: 5; 
+            border-left: 4px solid var(--gold); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+        }
+
+        .auth-wrapper.toggled .background-shape { 
+            transform: skewX(15deg) translateX(-75%); 
+            right: auto;
+            left: -10%;
+            border-left: none;
+            border-right: 4px solid var(--gold);
+        }
+
+        .money-content { 
+            transform: skewX(15deg); 
+            text-align: center; 
+            transition: var(--transition-speed);
+        }
+        .auth-wrapper.toggled .money-content { transform: skewX(-15deg); }
+
+        .money-content i { font-size: 6rem; color: var(--gold); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(212,175,55,0.3)); }
+        .money-content h3 { font-size: 2rem; text-transform: uppercase; letter-spacing: 6px; font-weight: 800; }
+        .money-content p { font-size: 0.9rem; opacity: 0.7; margin-top: 10px; letter-spacing: 2px; }
+
+        /* --- Panels --- */
+        .credentials-panel { 
+            position: absolute; 
+            width: 50%; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            padding: 0 10%; 
+            z-index: 10; 
+            transition: transform 0.8s ease, opacity 0.6s ease; 
+        }
+        
+        .signin { left: 0; }
+        .signup { right: 0; opacity: 0; pointer-events: none; transform: translateX(50px); }
+
+        .auth-wrapper.toggled .signin { opacity: 0; pointer-events: none; transform: translateX(-50px); }
+        .auth-wrapper.toggled .signup { opacity: 1; pointer-events: auto; transform: translateX(0); }
+
+        h2 { font-size: 3rem; color: var(--gold); margin-bottom: 40px; font-weight: 700; }
+
+        /* --- Form Fields --- */
+        .field-wrapper { position: relative; margin-bottom: 35px; max-width: 400px; }
+        .field-wrapper input { 
+            width: 100%; 
+            padding: 12px 0; 
+            background: transparent; 
+            border: none; 
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4); 
+            color: white; 
+            outline: none; 
+            font-size: 1rem;
+        }
+        .field-wrapper label { position: absolute; left: 0; top: 12px; color: rgba(255, 255, 255, 0.4); transition: 0.3s; pointer-events: none; }
+        .field-wrapper input:focus ~ label, 
+        .field-wrapper input:valid ~ label { top: -20px; color: var(--gold); font-size: 0.75rem; font-weight: 600; }
+
+        .switch-link { margin-top: 30px; font-size: 0.9rem; opacity: 0.8; }
+        .switch-link a { color: var(--gold); text-decoration: none; font-weight: 600; margin-left: 5px; cursor: pointer; }
+
+        /* --- Vault Button Animation --- */
+        .btn-vault {
+            position: relative;
+            width: 260px;
+            height: 60px;
+            border: 2px solid var(--gold);
+            background: transparent;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 800;
+            transition: 0.3s;
+        }
+
+        .btn-vault:hover { background: rgba(212,175,55,0.05); }
+
+        .bar { position: absolute; width: 3px; height: 35px; background: var(--gold); opacity: 0; z-index: 10; }
+        .bar-l { left: 15px; }
+        .bar-r { right: 15px; }
+
+        .welcome-container { position: absolute; display: flex; opacity: 0; pointer-events: none; }
+        .letter { display: inline-block; font-size: 1.1rem; font-weight: 900; opacity: 0; transform: translateY(10px); transition: 0.4s ease; color: var(--gold); }
+
+        /* Animation States */
+        .btn-vault.active .btn-text { opacity: 0; }
+        .btn-vault.active .bar { opacity: 1; }
+        .btn-vault.active .bar-l { animation: moveToCenter 0.6s ease-in forwards; }
+        .btn-vault.active .bar-r { animation: moveToCenterRight 0.6s ease-in forwards; }
+
+        .btn-vault.reveal .welcome-container { opacity: 1; }
+        .btn-vault.reveal .letter { opacity: 1; transform: translateY(0); }
+
+        @keyframes moveToCenter { to { transform: translateX(110px); opacity: 0; } }
+        @keyframes moveToCenterRight { to { transform: translateX(-110px); opacity: 0; } }
+
+        /* Signup Button Simple */
+        .submit-button {
+            padding: 15px 50px;
+            background: var(--gold);
+            color: var(--emerald-dark);
+            border: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .submit-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+
+        /* Transition Effect */
+        .page-transition-active { filter: blur(30px); transform: scale(1.1); transition: 1s ease; }
+
+    </style>
+</head>
+<body>
+
+<div class="fixed-bg-container">
+    <img src="https://images.unsplash.com/photo-1628527304948-06157ee3c8a6?auto=format&fit=crop&q=80&w=2070" class="bg-image-layer" id="bgLayer">
+    <div class="bg-gradient-overlay"></div>
+</div>
+<div class="grainy-noise"></div>
+
+<div class="auth-wrapper" id="auth-ui">
+    <div class="background-shape">
+        <div class="money-content">
+            <i class="fa-solid fa-vault" id="money-icon"></i>
+            <h3 id="money-headline">Wealth Vault</h3>
+            <p id="money-subline">FORTIFIED ASSET MANAGEMENT</p>
+        </div>
+    </div>
+
+    <div class="credentials-panel signin">
+        <h2>Partner Login</h2>
+        <form id="loginForm">
+            <div class="field-wrapper">
+                <input type="text" id="login-id" required>
+                <label>Partner ID</label>
+            </div>
+            <div class="field-wrapper">
+                <input type="password" id="login-pass" required>
+                <label>Access Key</label>
+            </div>
+            
+            <button type="button" class="btn-vault" id="loginBtn">
+                <div class="bar bar-l"></div>
+                <span class="btn-text">Unlock Vault</span>
+                <div class="welcome-container" id="welcome-text"></div>
+                <div class="bar bar-r"></div>
+            </button>
+
+            <p class="switch-link">New Investor? <a class="register-trigger">Open Account</a></p>
+        </form>
+    </div>
+
+    <div class="credentials-panel signup">
+        <h2>Registration</h2>
+        <form id="signupForm">
+            <div class="field-wrapper">
+                <input type="text" id="name" required>
+                <label>Full Name</label>
+            </div>
+            <div class="field-wrapper">
+                <input type="email" id="email" required 
+                       oninput="this.value = this.value.toLowerCase()" 
+                       placeholder="user@gmail.com">
+                <label>Email Address</label>
+            </div>
+            <div class="field-wrapper">
+                <input type="password" id="password" required>
+                <label>Create Password</label>
+            </div>
+            <button type="submit" class="submit-button">Secure Access</button>
+            <p class="switch-link">Already a Partner? <a class="login-trigger">Sign In</a></p>
+        </form>
+    </div>
+</div>
+
+<script>
+    const authWrapper = document.getElementById('auth-ui');
+    const loginBtn = document.getElementById('loginBtn');
+    const welcomeContainer = document.getElementById('welcome-text');
+    const bgLayer = document.getElementById('bgLayer');
+    const word = "AUTHORIZED";
+    const API_BASE_URL = "/api";
+
+    // Build the animated "WELCOME" (or "AUTHORIZED") text
+    word.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        span.className = 'letter';
+        span.style.transitionDelay = `${i * 0.05}s`; 
+        welcomeContainer.appendChild(span);
+    });
+
+    // Panel Swapping
+    document.querySelector('.register-trigger').onclick = () => {
+        authWrapper.classList.add('toggled');
+        bgLayer.style.transform = 'scale(1.1) translateX(20px)';
+    };
+
+    document.querySelector('.login-trigger').onclick = () => {
+        authWrapper.classList.remove('toggled');
+        bgLayer.style.transform = 'scale(1) translateX(0)';
+    };
+
+    // Signup Validation
+    document.getElementById('signupForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Account created successfully! Your Partner ID is: ${data.partnerId}`);
+                // Switch to login panel
+                authWrapper.classList.remove('toggled');
+                bgLayer.style.transform = 'scale(1) translateX(0)';
+            } else {
+                alert(data.message || 'Signup failed');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('Network error. Please try again.');
+        }
+    };
+
+    // Vault Unlock Animation
+    loginBtn.addEventListener('click', async () => {
+        const partnerId = document.getElementById('login-id').value.trim();
+        const pass = document.getElementById('login-pass').value.trim();
+
+        if(!partnerId || !pass) {
+            alert("Credentials Required");
+            return;
+        }
+
+        if(loginBtn.classList.contains('active')) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: partnerId, password: pass }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store token in localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Sequence Start
+                loginBtn.classList.add('active');
+
+                setTimeout(() => {
+                    loginBtn.classList.add('reveal');
+                    
+                    // Final Transition
+                    setTimeout(() => {
+                        authWrapper.classList.add('page-transition-active');
+                        setTimeout(() => {
+                            window.location.href = "home.html";
+                        }, 800);
+                    }, 1200);
+                }, 600);
+            } else {
+                alert(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Network error. Please try again.');
+        }
+    });
+</script>
+
+</body>
+</html>
