@@ -21,12 +21,13 @@
 
         body { 
             background: #000; 
-            height: 100vh; 
-            width: 100vw; 
+            min-height: 100vh;
+            min-height: 100dvh;
+            width: 100%; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            overflow: hidden; 
+            overflow-x: hidden;
             color: white;
         }
 
@@ -57,13 +58,14 @@
         .auth-wrapper { 
             position: relative; 
             width: 100%; 
-            height: 100%; 
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex; 
             z-index: 2; 
             transition: filter 0.8s ease;
         }
 
-        /* --- The Sliding Skewed Shape --- */
+        /* --- The Sliding Skewed Shape (desktop only) --- */
         .background-shape { 
             position: absolute; 
             right: -10%; 
@@ -96,9 +98,9 @@
         }
         .auth-wrapper.toggled .money-content { transform: skewX(-15deg); }
 
-        .money-content i { font-size: 6rem; color: var(--gold); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(212,175,55,0.3)); }
-        .money-content h3 { font-size: 2rem; text-transform: uppercase; letter-spacing: 6px; font-weight: 800; }
-        .money-content p { font-size: 0.9rem; opacity: 0.7; margin-top: 10px; letter-spacing: 2px; }
+        .money-content i { font-size: 4rem; color: var(--gold); margin-bottom: 16px; filter: drop-shadow(0 0 15px rgba(212,175,55,0.3)); }
+        .money-content h3 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 4px; font-weight: 800; }
+        .money-content p { font-size: 0.8rem; opacity: 0.7; margin-top: 8px; letter-spacing: 2px; }
 
         /* --- Panels --- */
         .credentials-panel { 
@@ -108,7 +110,7 @@
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
-            padding: 0 10%; 
+            padding: 0 6%; 
             z-index: 10; 
             transition: transform 0.8s ease, opacity 0.6s ease; 
         }
@@ -119,10 +121,10 @@
         .auth-wrapper.toggled .signin { opacity: 0; pointer-events: none; transform: translateX(-50px); }
         .auth-wrapper.toggled .signup { opacity: 1; pointer-events: auto; transform: translateX(0); }
 
-        h2 { font-size: 3rem; color: var(--gold); margin-bottom: 40px; font-weight: 700; }
+        h2 { font-size: 2.2rem; color: var(--gold); margin-bottom: 32px; font-weight: 700; }
 
         /* --- Form Fields --- */
-        .field-wrapper { position: relative; margin-bottom: 35px; max-width: 400px; }
+        .field-wrapper { position: relative; margin-bottom: 32px; width: 100%; max-width: 380px; }
         .field-wrapper input { 
             width: 100%; 
             padding: 12px 0; 
@@ -137,14 +139,15 @@
         .field-wrapper input:focus ~ label, 
         .field-wrapper input:valid ~ label { top: -20px; color: var(--gold); font-size: 0.75rem; font-weight: 600; }
 
-        .switch-link { margin-top: 30px; font-size: 0.9rem; opacity: 0.8; }
+        .switch-link { margin-top: 24px; font-size: 0.85rem; opacity: 0.8; }
         .switch-link a { color: var(--gold); text-decoration: none; font-weight: 600; margin-left: 5px; cursor: pointer; }
 
         /* --- Vault Button Animation --- */
         .btn-vault {
             position: relative;
-            width: 260px;
-            height: 60px;
+            width: 100%;
+            max-width: 260px;
+            height: 56px;
             border: 2px solid var(--gold);
             background: transparent;
             cursor: pointer;
@@ -166,9 +169,8 @@
         .bar-r { right: 15px; }
 
         .welcome-container { position: absolute; display: flex; opacity: 0; pointer-events: none; }
-        .letter { display: inline-block; font-size: 1.1rem; font-weight: 900; opacity: 0; transform: translateY(10px); transition: 0.4s ease; color: var(--gold); }
+        .letter { display: inline-block; font-size: 1rem; font-weight: 900; opacity: 0; transform: translateY(10px); transition: 0.4s ease; color: var(--gold); }
 
-        /* Animation States */
         .btn-vault.active .btn-text { opacity: 0; }
         .btn-vault.active .bar { opacity: 1; }
         .btn-vault.active .bar-l { animation: moveToCenter 0.6s ease-in forwards; }
@@ -180,9 +182,11 @@
         @keyframes moveToCenter { to { transform: translateX(110px); opacity: 0; } }
         @keyframes moveToCenterRight { to { transform: translateX(-110px); opacity: 0; } }
 
-        /* Signup Button Simple */
+        /* Signup Button */
         .submit-button {
-            padding: 15px 50px;
+            width: 100%;
+            max-width: 260px;
+            padding: 15px 24px;
             background: var(--gold);
             color: var(--emerald-dark);
             border: none;
@@ -191,12 +195,85 @@
             letter-spacing: 2px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 0.9rem;
         }
-        .submit-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .submit-button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
 
-        /* Transition Effect */
         .page-transition-active { filter: blur(30px); transform: scale(1.1); transition: 1s ease; }
 
+        /* ====== MOBILE RESPONSIVE ====== */
+        @media (max-width: 768px) {
+            body { align-items: flex-start; overflow-y: auto; }
+
+            .auth-wrapper {
+                flex-direction: column;
+                min-height: 100dvh;
+                overflow: hidden;
+            }
+
+            /* Hide desktop skewed shape on mobile */
+            .background-shape { display: none; }
+
+            /* Mobile: stacked panels, full width, centered */
+            .credentials-panel {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: 100dvh;
+                padding: 48px 28px 40px;
+                justify-content: center;
+                transform: none !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+
+            /* On mobile, only show active panel */
+            .signin { display: flex; }
+            .signup { display: none; }
+
+            .auth-wrapper.toggled .signin { display: none; }
+            .auth-wrapper.toggled .signup { display: flex; opacity: 1 !important; transform: none !important; }
+
+            /* Mobile header brand */
+            .credentials-panel::before {
+                content: '';
+                display: block;
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, #1b4332, #081c15);
+                border: 2px solid var(--gold);
+                border-radius: 12px;
+                margin-bottom: 12px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 24px;
+            }
+
+            h2 { font-size: 1.8rem; margin-bottom: 28px; }
+
+            .field-wrapper { max-width: 100%; margin-bottom: 28px; }
+
+            .btn-vault, .submit-button { max-width: 100%; }
+
+            .switch-link { margin-top: 20px; font-size: 0.85rem; }
+        }
+
+        @media (max-width: 400px) {
+            .credentials-panel { padding: 40px 20px 36px; }
+            h2 { font-size: 1.6rem; }
+        }
+
+    </style>
+
+    <!-- Global Mobile Fix -->
+    <style>
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
     </style>
 </head>
 <body>

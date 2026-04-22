@@ -196,6 +196,22 @@
             bottom: -1080px; transition: transform 1.6s linear, bottom 1.6s cubic-bezier(0.7, 0.1, 1, 1) 0.1s;
         }
         @keyframes spin { from { transform: rotate(0deg) scale(1.3); } to { transform: rotate(359deg) scale(1.3); } }
+
+        @media (max-width: 640px) {
+            .profile-3d-container:hover .profile-card { transform: none; box-shadow: none; }
+            .profile-3d-container:hover .profile-image-3d { transform: none; filter: none; }
+            #investment-detail-modal > div { border-radius: 1.5rem; }
+        }
+    </style>
+
+    <!-- Global Mobile Fix -->
+    <style>
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen font-display">
@@ -247,21 +263,37 @@
 </div>
 </div>
 </div>
+
+                <!-- Mobile Hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors ml-2" onclick="toggleMobileMenu()" aria-label="Menu">
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all duration-300" id="ham-top"></span>
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all duration-300" id="ham-mid"></span>
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all duration-300" id="ham-bot"></span>
+                </button>
 </div>
 </header>
+    <!-- Mobile Nav Dropdown -->
+    <div id="mobile-nav" class="hidden md:hidden bg-white dark:bg-background-dark border-b border-primary/20 shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="javascript:void(0)" onclick="navigateWithTransition('home.html')">Fixed Deposits</a>
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="javascript:void(0)" onclick="navigateWithTransition('mutual.html')">Mutual Funds</a>
+            <a class="text-secondary-green font-bold px-3 py-2.5 rounded-lg bg-primary/5 border border-primary/20" href="#">My Dashboard</a>
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="javascript:void(0)" onclick="navigateWithTransition('calculator.html')">Calculator</a>
+        </nav>
+    </div>
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-<section class="emerald-gradient rounded-3xl p-8 md:p-12 mb-10 shadow-2xl relative overflow-hidden">
+<section class="emerald-gradient rounded-3xl p-5 sm:p-8 md:p-12 mb-6 sm:mb-10 shadow-2xl relative overflow-hidden">
 <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-<div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+<div class="relative z-10 flex flex-col sm:flex-row items-center gap-5 sm:gap-8">
 <div class="relative profile-3d-container">
-<div class="profile-card w-32 h-32 md:w-40 md:h-40 rounded-2xl border border-white/20 overflow-visible relative flex items-center justify-center">
+<div class="profile-card w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-2xl border border-white/20 overflow-visible relative flex items-center justify-center flex-shrink-0">
 <img id="main-profile-img" alt="Profile Large" class="profile-image-3d w-full h-full object-cover rounded-2xl shadow-2xl" src="https://via.placeholder.com/300"/>
 </div>
 <div class="absolute -bottom-2 -right-2 bg-primary text-emerald-dark p-2 rounded-lg shadow-lg z-20">
 <span class="material-symbols-outlined text-sm font-bold">verified</span>
 </div>
 </div>
-<div class="text-center md:text-left flex-grow">
+<div class="text-center sm:text-left flex-grow">
 <h1 id="hero-name" class="text-3xl md:text-4xl font-black text-white mb-2">Loading...</h1>
 <p id="hero-email" class="text-emerald-100/80 text-lg mb-6 flex items-center justify-center md:justify-start gap-2">
 <span class="material-symbols-outlined text-base">mail</span> loading...
@@ -269,15 +301,15 @@
 <div class="flex flex-wrap gap-4 justify-center md:justify-start">
 <div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
 <p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Total Net Worth</p>
-<p id="stat-net-worth" class="text-2xl font-black text-white">₹0</p>
+<p id="stat-net-worth" class="text-lg sm:text-2xl font-black text-white break-all">₹0</p>
 </div>
 <div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
 <p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Current Investment</p>
-<p id="stat-investment" class="text-2xl font-black text-white">₹0</p>
+<p id="stat-investment" class="text-lg sm:text-2xl font-black text-white break-all">₹0</p>
 </div>
 <div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl">
 <p class="text-[10px] text-primary font-black uppercase tracking-widest mb-1">Account</p>
-<p id="display-partner-id" class="text-2xl font-black text-white">---</p>
+<p id="display-partner-id" class="text-lg sm:text-2xl font-black text-white break-all">---</p>
 </div>
 </div>
 <form id="profile-image-form" class="mt-6 flex flex-col sm:flex-row items-center gap-3 justify-center md:justify-start">
@@ -309,7 +341,7 @@
 </div>
 </div>
 </section>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 mb-6 sm:mb-12">
 <div class="lg:col-span-2">
 <div class="flex items-center justify-between mb-6">
 <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
@@ -329,7 +361,7 @@ No investment records available. Add a new investment to see details here.
 <div class="bg-white dark:bg-white/5 border-2 border-primary/20 rounded-3xl p-8 sticky top-24">
 <h3 class="font-black text-lg mb-6 text-slate-900 dark:text-white">Quick Tools</h3>
 <div class="grid grid-cols-1 gap-4">
-<button class="w-full bg-primary hover:bg-gold-light text-emerald-dark font-black py-4 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg">
+<button class="w-full bg-primary hover:bg-gold-light text-emerald-dark font-black py-3 sm:py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base">
 <span class="material-symbols-outlined">add_circle</span> NEW INVESTMENT</button>
 <button onclick="navigateWithTransition('calculator.html')" class="w-full bg-transparent border-2 border-secondary-green text-secondary-green font-black py-4 rounded-xl hover:bg-secondary-green hover:text-white transition-all flex items-center justify-center gap-3">
 <span class="material-symbols-outlined">calculate</span> CALCULATOR</button>
@@ -415,8 +447,8 @@ No investment records available. Add a new investment to see details here.
 </footer>
 
 <!-- Investment Detail Modal -->
-<div id="investment-detail-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border-2 border-primary/20 overflow-hidden">
+<div id="investment-detail-modal" class="fixed inset-0 z-[200] hidden flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/20 overflow-hidden my-auto">
         <div class="emerald-gradient p-6 relative">
             <button onclick="closeInvestmentModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
                 <span class="material-symbols-outlined text-2xl">close</span>
@@ -523,7 +555,7 @@ No investment records available. Add a new investment to see details here.
             if (noDataEl) noDataEl.style.display = 'none';
             investmentsContainer.innerHTML = user.investments.map((investment, idx) => `
                 <div onclick="showInvestmentDetail(${idx})" class="bg-white dark:bg-white/5 rounded-2xl border-2 border-secondary-green/20 p-6 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer group">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-xl bg-secondary-green/10 flex items-center justify-center text-secondary-green group-hover:bg-primary/10 transition-colors">
                                 <span class="material-symbols-outlined">payments</span>
@@ -725,4 +757,30 @@ No investment records available. Add a new investment to see details here.
     document.getElementById('profile-image-form').addEventListener('submit', uploadProfileImage);
     window.onload = initDashboard;
 </script>
+
+    <script>
+    function toggleMobileMenu() {
+        const nav = document.getElementById('mobile-nav');
+        const top = document.getElementById('ham-top');
+        const mid = document.getElementById('ham-mid');
+        const bot = document.getElementById('ham-bot');
+        const nowHidden = nav.classList.toggle('hidden');
+        if (!nowHidden) {
+            top.style.transform = 'translateY(8px) rotate(45deg)';
+            mid.style.opacity = '0';
+            bot.style.transform = 'translateY(-8px) rotate(-45deg)';
+        } else {
+            top.style.transform = ''; mid.style.opacity = ''; bot.style.transform = '';
+        }
+    }
+    document.addEventListener('click', function(e) {
+        const btn = document.getElementById('mobile-menu-btn');
+        const nav = document.getElementById('mobile-nav');
+        if (btn && nav && !btn.contains(e.target) && !nav.contains(e.target)) {
+            nav.classList.add('hidden');
+            const t = document.getElementById('ham-top'), m = document.getElementById('ham-mid'), b = document.getElementById('ham-bot');
+            if(t){t.style.transform=''; m.style.opacity=''; b.style.transform='';}
+        }
+    });
+    </script>
 </body></html>

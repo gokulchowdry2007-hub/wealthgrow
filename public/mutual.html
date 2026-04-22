@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeByGaurav - 404 page</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Arvo">
@@ -17,7 +18,10 @@
 
     .four_zero_four_bg {
       background-image: url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
-      height: 400px;
+      height: 280px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       background-position: center;
     }
 
@@ -44,7 +48,24 @@
       filter: blur(15px);
       opacity: 0;
     }
-  </style>
+  
+    @media (max-width: 576px) {
+      .four_zero_four_bg { height: 200px; }
+      .four_zero_four_bg h1 { font-size: 60px; }
+      .contant_box_404 h3 { font-size: 22px; }
+      .link_404 { display: block; text-align: center; }
+    }
+</style>
+
+    <!-- Global Mobile Fix -->
+    <style>
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+    </style>
 </head>
 <body id="page-body">
 

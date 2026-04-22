@@ -53,6 +53,16 @@
             animation: loading 2s infinite ease-in-out;
         }
     </style>
+
+    <!-- Global Mobile Fix -->
+    <style>
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+    </style>
 </head>
 <body class="font-body bg-primary overflow-hidden">
 
@@ -83,8 +93,8 @@
         </div>
     </div>
 
-    <div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-on-tertiary-container/5 rounded-full blur-[120px] animate-pulse"></div>
-    <div class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-primary-container/20 rounded-full blur-[100px]"></div>
+    <div class="absolute -top-1/4 -right-1/4 w-[400px] h-[400px] sm:w-[800px] sm:h-[800px] bg-on-tertiary-container/5 rounded-full blur-[120px] animate-pulse"></div>
+    <div class="absolute -bottom-1/4 -left-1/4 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-primary-container/20 rounded-full blur-[100px]"></div>
 </main>
 
 <script>

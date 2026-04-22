@@ -84,6 +84,16 @@
             border-color: rgba(212, 175, 55, 0.2);
         }
     </style>
+
+    <!-- Global Mobile Fix -->
+    <style>
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+    </style>
 </head>
 
 <body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen font-display">
@@ -109,22 +119,38 @@
                         <img alt="Profile" class="w-full h-full rounded-full object-cover" src="https://ui-avatars.com/api/?name=W+G&background=2e7d32&color=fff" />
                     </a>
                 </div>
+
+                <!-- Mobile Hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors" onclick="toggleMobileMenu()" aria-label="Menu">
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all" id="ham-top"></span>
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all" id="ham-mid"></span>
+                    <span class="w-5 h-0.5 bg-slate-700 dark:bg-slate-200 transition-all" id="ham-bot"></span>
+                </button>
             </div>
         </div>
     </header>
+    <!-- Mobile Nav Dropdown -->
+    <div id="mobile-nav" class="hidden md:hidden bg-white dark:bg-background-dark border-b border-primary/20 shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
+            <a class="text-secondary-green font-bold px-3 py-2.5 rounded-lg bg-primary/5 border border-primary/20" href="#">Fixed Deposits</a>
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="mutual.html">Mutual Funds</a>
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="calculator.html">Calculator</a>
+            <a class="text-slate-600 dark:text-slate-300 font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" href="profile.html">My Profile</a>
+        </nav>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
         
         <section id="premium-banner" class="hover-3d-parent relative mb-20 cursor-pointer group">
-            <div class="hover-3d-card relative rounded-3xl overflow-hidden min-h-[520px] flex items-center shadow-2xl bg-emerald-dark">
+            <div class="hover-3d-card relative rounded-3xl overflow-hidden min-h-[320px] sm:min-h-[420px] lg:min-h-[520px] flex items-center shadow-2xl bg-emerald-dark">
                 <div class="absolute inset-0 z-0">
                     <img alt="Premium Background" class="w-full h-full object-cover opacity-40" src="https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=1974"/>
                     <div class="absolute inset-0 bg-gradient-to-r from-emerald-dark via-emerald-dark/90 to-transparent"></div>
                 </div>
                 
-                <div class="relative z-10 px-8 lg:px-16 max-w-3xl floating-element">
+                <div class="relative z-10 px-5 sm:px-8 lg:px-16 max-w-3xl floating-element">
                     <span class="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-black tracking-widest uppercase mb-6 border border-primary/40">Exclusive Offering</span>
-                    <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                    <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
                         Secure your future with up to <span class="text-primary italic">8.50% p.a.</span>
                     </h1>
                     <button onclick="window.location.href='invest.html'" class="bg-primary hover:bg-gold-light text-emerald-dark px-10 py-4 rounded-xl font-black shadow-lg transition-all hover:scale-105">
@@ -275,6 +301,36 @@
             });
             ScrollTrigger.refresh();
         }
+    </script>
+
+    <script>
+    function toggleMobileMenu() {
+        const nav = document.getElementById('mobile-nav');
+        const top = document.getElementById('ham-top');
+        const mid = document.getElementById('ham-mid');
+        const bot = document.getElementById('ham-bot');
+        const open = nav.classList.toggle('hidden');
+        if (!open) {
+            top.style.transform = 'translateY(8px) rotate(45deg)';
+            mid.style.opacity = '0';
+            bot.style.transform = 'translateY(-8px) rotate(-45deg)';
+        } else {
+            top.style.transform = '';
+            mid.style.opacity = '';
+            bot.style.transform = '';
+        }
+    }
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        const btn = document.getElementById('mobile-menu-btn');
+        const nav = document.getElementById('mobile-nav');
+        if (btn && nav && !btn.contains(e.target) && !nav.contains(e.target)) {
+            nav.classList.add('hidden');
+            document.getElementById('ham-top').style.transform = '';
+            document.getElementById('ham-mid').style.opacity = '';
+            document.getElementById('ham-bot').style.transform = '';
+        }
+    });
     </script>
 </body>
 </html>
